@@ -435,6 +435,31 @@ LogicalResult mlir::bufferization::bufferizeModuleOp(
   // A mapping of FuncOps to their callers.
   FuncCallerMap callerMap;
 
+  moduleOp.walk([&](FuncOp funcOp) {
+    auto inputTypes = funcOp.getArgumentTypes();
+    auto outputTypes = funcOp.getResultTypes();
+
+    // TODO: Do this only if input/output types are tensors
+    std::string inputTypesStr, outputTypesStr;
+    llvm::raw_string_ostream inputTypesStream(inputTypesStr), outputTypesStream(outputTypesStr);
+    for (Type inputType : inputTypes) {
+      inputType.print(inputTypesStream);
+      inputTypesStream << ", ";
+    }
+    for (Type outputType : outputTypes) {
+      outputType.print(outputTypesStream);
+      outputTypesStream << ", ";
+    }
+    auto inputAttr = StringAttr::get(moduleOp.getContext(), inputTypesStream.str());
+    auto outputAttr = StringAttr::get(moduleOp.getContext(), outputTypesStream.str());
+
+    funcOp->setAttr("input_tensor_types", inputAttr);
+    funcOp->setAttr("output_tensor_types", outputAttr);
+
+  });
+
+
+
   if (failed(getFuncOpsOrderedByCalls(moduleOp, orderedFuncOps, callerMap)))
     return failure();
 
