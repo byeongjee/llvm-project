@@ -4234,3 +4234,16 @@ def AvailableOnlyInDefaultEvalMethod : InheritableAttr {
   let Subjects = SubjectList<[TypedefName], ErrorDiag>;
   let Documentation = [Undocumented];
 }
+
+def IntermittentTask : InheritableAttr {
+  let Spellings = [GCC<"intermittent_task">];
+  let Subjects = SubjectList<[Function]>;
+  let Args = [IntArgument<"id">];
+  let Documentation = [Undocumented];
+}
+
+def NonVolatileVariable : InheritableAttr {
+  let Spellings = [GCC<"nonvolatile_var">];
+  let Subjects = SubjectList<[GlobalVar]>;
+  let Documentation = [Undocumented];
+}

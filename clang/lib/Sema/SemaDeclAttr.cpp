@@ -8716,6 +8716,29 @@ static void handleArmNewZaAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
   handleSimpleAttribute<ArmNewZAAttr>(S, D, AL);
 }
 
+
+static void handleIntermittentTaskAttr(Sema &S, Decl *D, const ParsedAttr &AL) {
+  // Ensure it has exactly one argument
+  if (AL.getNumArgs() != 1) {
+    S.Diag(AL.getLoc(), diag::err_attribute_wrong_number_arguments)
+        << "intermittent_task" << 1;
+    return;
+  }
+
+  // Extract the integer argument
+  Expr *ArgExpr = AL.getArgAsExpr(0);
+  auto IntVal = ArgExpr->getIntegerConstantExpr(S.Context);
+  if (!IntVal.has_value()) {
+    S.Diag(AL.getLoc(), diag::err_attribute_argument_type)
+        << "intermittent_task" << /* expected type */ "integer";
+    return;
+  }
+
+  // Attach the attribute with the integer value
+  D->addAttr(::new (S.Context)
+                 IntermittentTaskAttr(S.Context, AL, IntVal.value().getZExtValue()));
+}
+
 /// ProcessDeclAttribute - Apply the specific attribute to the specified decl if
 /// the attribute applies to decls.  If the attribute is a type attribute, just
 /// silently ignore it if a GNU attribute.
@@ -9509,6 +9532,15 @@ ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D, const ParsedAttr &AL,
 
   case ParsedAttr::AT_UsingIfExists:
     handleSimpleAttribute<UsingIfExistsAttr>(S, D, AL);
+    break;
+
+  // intermittend dialect attributes
+  case ParsedAttr::AT_IntermittentTask:
+    handleIntermittentTaskAttr(S, D, AL);
+    break;
+
+  case ParsedAttr::AT_NonVolatileVariable:
+    handleSimpleAttribute<NonVolatileVariableAttr>(S, D, AL);
     break;
   }
 }
