@@ -15,4 +15,18 @@
 
 namespace mlir::wasmssa {
 #include "mlir/Dialect/WasmSSA/IR/WasmSSATypeConstraints.cpp.inc"
+
+bool isWasmCompatibleValueType(Type type) {
+  if (!type)
+    return false;
+
+  if (isWasmValueType(type))
+    return true;
+
+  Dialect &dialect = type.getDialect();
+
+  auto *iface =
+      dialect.getRegisteredInterface<WasmSSAValueTypeDialectInterface>();
+  return iface && iface->isWasmSSAExtendedValueType(type);
+}
 } // namespace mlir::wasmssa
