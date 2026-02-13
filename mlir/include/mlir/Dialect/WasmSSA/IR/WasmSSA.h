@@ -11,6 +11,7 @@
 
 #include "mlir/Bytecode/BytecodeOpInterface.h"
 #include "mlir/IR/Dialect.h"
+#include "mlir/IR/Types.h"
 
 //===----------------------------------------------------------------------===//
 // WebAssemblyDialect
@@ -42,6 +43,25 @@
 //===----------------------------------------------------------------------===//
 // WebAssembly Constraints
 //===----------------------------------------------------------------------===//
+
+namespace mlir::wasmssa {
+
+/// Dialects may implement this interface to mark additional types as
+/// WasmSSA-compatible value types.
+class WasmSSAValueTypeDialectInterface
+    : public DialectInterface::Base<WasmSSAValueTypeDialectInterface> {
+public:
+  using Base::Base;
+
+  /// Returns true if `type` should be accepted as a value type by WasmSSA ops.
+  virtual bool isWasmSSAExtendedValueType(Type type) const { return false; }
+};
+
+/// Returns true if `type` is either a built-in WasmSSA value type or a
+/// type accepted by its defining dialect via WasmSSAValueTypeDialectInterface.
+bool isWasmCompatibleValueType(Type type);
+
+} // namespace mlir::wasmssa
 
 namespace mlir {
 namespace wasmssa {

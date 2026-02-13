@@ -29,7 +29,7 @@ class WasmSSA_Op<string mnemonic, list<Trait> traits = []> :
 class WasmSSA_BlockLikeOp<string mnemonic, string summaryStr> :
   WasmSSA_Op<mnemonic, [Terminator, DeclareOpInterfaceMethods<LabelLevelOpInterface>]> {
   let summary = summaryStr;
-  let arguments = (ins Variadic<WasmSSA_ValType>: $inputs);
+  let arguments = (ins Variadic<WasmSSA_CompatValType>: $inputs);
   let regions = (region AnyRegion: $body);
   let successors = (successor AnySuccessor: $target);
   let extraClassDeclaration = [{
@@ -82,7 +82,7 @@ def WasmSSA_LoopOp : WasmSSA_BlockLikeOp<
 def WasmSSA_BlockReturnOp : WasmSSA_Op<"block_return", [Terminator,
     DeclareOpInterfaceMethods<LabelBranchingOpInterface>]> {
   let summary = "Return from the current block";
-  let arguments = (ins Variadic<WasmSSA_ValType>: $inputs);
+  let arguments = (ins Variadic<WasmSSA_CompatValType>: $inputs);
   let extraClassDeclaration = [{
     ::mlir::Block* getTarget();
   }];
@@ -111,7 +111,7 @@ def WasmSSA_BranchIfOp : WasmSSA_Op<"branch_if", [
   let summary = "Jump to target level if condition has non-zero value";
   let arguments = (ins I32: $condition,
                        UI32Attr: $exitLevel,
-                       Variadic<WasmSSA_ValType>: $inputs);
+                       Variadic<WasmSSA_CompatValType>: $inputs);
   let description = [{
      Jump to target level if the condition is has a non-zero value.
 
@@ -233,8 +233,8 @@ def WasmSSA_FuncCallOp : WasmSSA_Op<"call"> {
      ```
     }];
   let arguments = (ins FlatSymbolRefAttr: $callee,
-                       Variadic<WasmSSA_ValType>:  $operands);
-  let results = (outs Variadic<WasmSSA_ValType>: $results);
+                       Variadic<WasmSSA_CompatValType>:  $operands);
+  let results = (outs Variadic<WasmSSA_CompatValType>: $results);
   let assemblyFormat = "$callee (`(`$operands^`)`)? attr-dict `:` functional-type($operands, $results)";
 }
 
@@ -397,7 +397,7 @@ def WasmSSA_IfOp : WasmSSA_Op<"if", [Terminator,
      }
      ```
     }];
-  let arguments = (ins I32:$condition, Variadic<WasmSSA_ValType>: $inputs);
+  let arguments = (ins I32:$condition, Variadic<WasmSSA_CompatValType>: $inputs);
   let regions = (region AnyRegion: $if, AnyRegion: $else);
   let successors = (successor AnySuccessor: $target);
   let extraClassDeclaration = [{
@@ -436,7 +436,7 @@ def WasmSSA_LocalOp : WasmSSA_Op<"local", [
      %a = wasmssa.local of type f32
      ```
     }];
-  let arguments = (ins WasmSSA_ValTypeAttr: $type);
+  let arguments = (ins WasmSSA_CompatValTypeAttr: $type);
   let results = (outs WasmSSA_LocalRef: $result);
   let assemblyFormat = "`of` `type` $type attr-dict";
 }
@@ -455,7 +455,7 @@ def WasmSSA_LocalGetOp : WasmSSA_Op<"local_get", [
      ```
     }];
   let arguments = (ins WasmSSA_LocalRef: $localVar);
-  let results = (outs WasmSSA_ValType: $result);
+  let results = (outs WasmSSA_CompatValType: $result);
   let assemblyFormat = "$localVar `:` type($localVar) attr-dict";
 }
 
@@ -472,7 +472,7 @@ def WasmSSA_LocalSetOp : WasmSSA_Op<"local_set"> {
      ```
     }];
   let arguments = (ins WasmSSA_LocalRef: $localVar,
-                       WasmSSA_ValType: $value);
+                       WasmSSA_CompatValType: $value);
   let hasVerifier = 1;
   let assemblyFormat = "$localVar `:` type($localVar) `to` $value `:` type($value) attr-dict";
 }
@@ -491,8 +491,8 @@ def WasmSSA_LocalTeeOp : WasmSSA_Op<"local_tee", [
      ```
     }];
   let arguments = (ins WasmSSA_LocalRef: $localVar,
-                       WasmSSA_ValType: $value);
-  let results = (outs WasmSSA_ValType: $result);
+                       WasmSSA_CompatValType: $value);
+  let results = (outs WasmSSA_CompatValType: $result);
   let hasVerifier = 1;
   let assemblyFormat = "$localVar `:` type($localVar) `to` $value `:` type($value) attr-dict";
 }
@@ -599,7 +599,7 @@ def WasmSSA_TableImportOp : WasmSSA_Op<"import_table", [Symbol, ImportOpInterfac
 
 def WasmSSA_ReturnOp : WasmSSA_Op<"return", [Terminator]> {
   let summary = "Return from the current function frame";
-  let arguments = (ins Variadic<WasmSSA_ValType>:  $operands);
+  let arguments = (ins Variadic<WasmSSA_CompatValType>:  $operands);
   let assemblyFormat = "attr-dict ($operands^ `:` type($operands))?";
   let builders = [
     OpBuilder<(ins)>

@@ -45,6 +45,11 @@ def WasmSSA_ValType : AnyTypeOf<[WasmSSA_NumericType, WasmSSA_VecType, WasmSSA_R
   let cppFunctionName = "isWasmValueType";
 }
 
+def WasmSSA_CompatValType : Type<
+    CPred<"::mlir::wasmssa::isWasmCompatibleValueType($_self)">,
+    "WasmSSA-compatible value type"> {
+}
+
 def WasmSSA_ResultType : TupleOf<[WasmSSA_ValType]>;
 
 def WasmSSA_FuncType : TypeAlias<FunctionType>;
@@ -58,7 +63,7 @@ def WasmSSA_LimitType : WasmSSA_Type<"Limit", "limit"> {
 
 def WasmSSA_LocalRef : WasmSSA_Type<"LocalRef", "local"> {
   let summary = "Type of a local variable";
-  let parameters = (ins WasmSSA_ValType: $elementType);
+  let parameters = (ins WasmSSA_CompatValType: $elementType);
   let assemblyFormat = "`ref` `to` $elementType";
   let builders = [TypeBuilderWithInferredContext<(ins "Type":$typeParam), [{
       return get(typeParam.getContext(), typeParam);
@@ -77,6 +82,7 @@ def WasmSSA_FuncTypeAttr : TypeAttrOf<WasmSSA_FuncType>;
 def WasmSSA_LimitTypeAttr : TypeAttrOf<WasmSSA_LimitType>;
 def WasmSSA_TableTypeAttr : TypeAttrOf<WasmSSA_TableType>;
 def WasmSSA_ValTypeAttr : TypeAttrOf<WasmSSA_ValType>;
+def WasmSSA_CompatValTypeAttr : TypeAttrOf<WasmSSA_CompatValType>;
 
 def WasmSSA_IntegerAttr : AnyAttrOf<[I32Attr, I64Attr]>;
 def WasmSSA_FPAttr : AnyAttrOf<[F32Attr, F64Attr]>;
