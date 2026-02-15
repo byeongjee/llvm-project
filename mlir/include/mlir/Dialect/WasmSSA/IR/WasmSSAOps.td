@@ -147,6 +147,16 @@ def WasmSSA_ConstOp : WasmSSA_Op<"const", [
   let assemblyFormat = "$value attr-dict";
 }
 
+def WasmSSA_RefNullOp : WasmSSA_Op<"ref_null", [ConstantExprOpTrait]> {
+  let summary = "Create a null reference-like value";
+  let description = [{
+    Defines a null value for reference-compatible wasmssa values, including
+    extended dialect value types accepted by WasmSSA_CompatValType.
+  }];
+  let results = (outs WasmSSA_CompatValType: $result);
+  let assemblyFormat = "`:` type($result) attr-dict";
+}
+
 def WasmSSA_FuncOp : WasmSSA_Op<"func", [
     AffineScope, AutomaticAllocationScope,
     DeclareOpInterfaceMethods<FunctionOpInterface, ["verifyBody"]>,
@@ -376,6 +386,22 @@ def WasmSSA_GlobalGetOp : WasmSSA_Op<"global_get", [DeclareOpInterfaceMethods<Sy
   let arguments = (ins FlatSymbolRefAttr: $global);
   let results = (outs WasmSSA_CompatValType: $global_val);
   let assemblyFormat = "$global attr-dict `:` type($global_val)";
+}
+
+def WasmSSA_GlobalSetOp : WasmSSA_Op<"global_set", [
+    DeclareOpInterfaceMethods<SymbolUserOpInterface>]> {
+  let summary = "Set the value of a mutable global";
+  let description = [{
+    Sets the value of a mutable global variable.
+
+    Example:
+
+    ```mlir
+    wasmssa.global_set @global_0 to %v : i32
+    ```
+  }];
+  let arguments = (ins FlatSymbolRefAttr: $global, WasmSSA_CompatValType: $value);
+  let assemblyFormat = "$global `to` $value `:` type($value) attr-dict";
 }
 
 def WasmSSA_IfOp : WasmSSA_Op<"if", [Terminator,
