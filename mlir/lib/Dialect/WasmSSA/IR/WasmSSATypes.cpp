@@ -27,6 +27,10 @@ bool isWasmCompatibleValueType(Type type) {
 
   auto *iface =
       dialect.getRegisteredInterface<WasmSSAValueTypeDialectInterface>();
-  return iface && iface->isWasmSSAExtendedValueType(type);
+  if (iface && iface->isWasmSSAExtendedValueType(type))
+    return true;
+
+  // Relaxed mode: allow non-builtin dialect types as wasmssa-compatible values.
+  return dialect.getNamespace() != "builtin";
 }
 } // namespace mlir::wasmssa

@@ -290,7 +290,7 @@ def WasmSSA_GlobalOp : WasmSSA_Op<"global", [
   IsolatedFromAbove, Symbol, ConstantExpressionInitializerOpTrait]> {
   let summary= "WebAssembly global value";
   let arguments = (ins SymbolNameAttr: $sym_name,
-                     WasmSSA_ValTypeAttr: $type,
+                     WasmSSA_CompatValTypeAttr: $type,
                      UnitAttr: $isMutable,
                      UnitAttr: $exported);
   let description = [{
@@ -347,7 +347,7 @@ def WasmSSA_GlobalImportOp : WasmSSA_Op<"import_global", [
   let arguments = (ins SymbolNameAttr: $sym_name,
                      StrAttr: $moduleName,
                      StrAttr: $importName,
-                     WasmSSA_ValTypeAttr: $type,
+                     WasmSSA_CompatValTypeAttr: $type,
                      UnitAttr: $isMutable);
   let extraClassDeclaration = [{
     bool isDeclaration() const { return true; }
@@ -374,7 +374,7 @@ def WasmSSA_GlobalGetOp : WasmSSA_Op<"global_get", [DeclareOpInterfaceMethods<Sy
      ```
     }];
   let arguments = (ins FlatSymbolRefAttr: $global);
-  let results = (outs WasmSSA_ValType: $global_val);
+  let results = (outs WasmSSA_CompatValType: $global_val);
   let assemblyFormat = "$global attr-dict `:` type($global_val)";
 }
 
