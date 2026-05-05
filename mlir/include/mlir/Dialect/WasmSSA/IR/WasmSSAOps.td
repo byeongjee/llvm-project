@@ -936,7 +936,7 @@ def WasmSSA_GeOp : WasmSSA_BinaryComparisonOp<"ge",
 
 // Integer shift and rotate operations.
 class WasmSSA_ShiftRotateOp<string mnemonic, string summaryStr, string descStr> :
-  WasmSSA_Op<mnemonic, [AllTypesMatch<["val", "bits", "result"]>]> {
+  WasmSSA_Op<mnemonic, [Pure, AllTypesMatch<["val", "bits", "result"]>]> {
   let summary = summaryStr;
   let description = descStr;
   let arguments = (ins WasmSSA_IntegerType:$val, WasmSSA_IntegerType:$bits);
